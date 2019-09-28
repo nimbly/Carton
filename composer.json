@@ -23,11 +23,11 @@
         "psr-4": {
             "Carton\\": "src/"
         }
-	},
-	"autoload-dev": {
-		"psr-4": {
-			"Carton\\Tests\\" : "tests/"
-		}
-	},
-    "version": "0.1"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Carton\\Tests\\": "tests/"
+        }
+    },
+    "version": "0.2"
 }
