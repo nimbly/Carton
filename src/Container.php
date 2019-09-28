@@ -48,7 +48,7 @@ class Container implements ContainerInterface
 	public function get($id)
 	{
 		if( $this->has($id) === false ){
-			throw new ContainerNotFoundException("Container item not found.");
+			throw new NotFoundException("Container item \"{$id}\" not found.");
 		}
 
 		return $this->items[$id]->build($this);
@@ -63,10 +63,6 @@ class Container implements ContainerInterface
 	 */
 	public function set(string $id, $item): void
 	{
-		if( $this->has($id) ){
-			throw new ContainerException("Container already has item \"{$id}\".");
-		}
-
 		if( $item instanceof BuilderInterface === false ){
 			$item = new ConcreteBuilder($item);
 		}
@@ -102,5 +98,30 @@ class Container implements ContainerInterface
 			$id,
 			new FactoryBuilder($builder)
 		);
+	}
+
+	/**
+	 * Register a set of service providers.
+	 *
+	 * @param ServiceProviderInterface|array<ServiceProviderInterface|string> $serviceProvider
+	 * @return void
+	 */
+	public function register($serviceProvider): void
+	{
+		if( !\is_array($serviceProvider) ){
+			$serviceProvider = [$serviceProvider];
+		}
+
+		foreach( $serviceProvider as $serviceProviderClass ){
+			if( \is_string($serviceProviderClass) && \class_exists($serviceProviderClass) ){
+				$serviceProviderClass = new $serviceProviderClass;
+			}
+
+			if( $serviceProviderClass instanceof ServiceProviderInterface === false ){
+				throw new ContainerException("Service provider not instance of ServiceProviderInterface");
+			}
+
+			$serviceProviderClass->register($this);
+		}
 	}
 }

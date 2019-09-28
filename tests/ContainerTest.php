@@ -5,15 +5,16 @@ namespace Carton\Tests;
 use Carton\ConcreteBuilder;
 use Carton\Container;
 use Carton\ContainerException;
-use Carton\ContainerNotFoundException;
+use Carton\NotFoundException;
 use Carton\FactoryBuilder;
 use Carton\SingletonBuilder;
+use Carton\Tests\Providers\SampleProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
 /**
  * @covers Carton\Container
- * @covers Carton\ContainerNotFoundException
+ * @covers Carton\NotFoundException
  * @covers Carton\ConcreteBuilder
  * @covers Carton\SingletonBuilder
  * @covers Carton\FactoryBuilder
@@ -64,7 +65,7 @@ class ContainerTest extends TestCase
 	{
 		$container = new Container;
 
-		$this->expectException(ContainerNotFoundException::class);
+		$this->expectException(NotFoundException::class);
 		$container->get('container');
 	}
 
@@ -82,15 +83,6 @@ class ContainerTest extends TestCase
 			$container->get('container')->foo,
 			$container->get('foo')
 		);
-	}
-
-	public function test_set_throws_exception_if_id_already_exists()
-	{
-		$container = new Container;
-		$container->set('container', new \stdClass);
-
-		$this->expectException(ContainerException::class);
-		$container->set('container', new \stdClass);
 	}
 
 	public function test_set_converts_item_to_concrete_builder()
@@ -137,5 +129,45 @@ class ContainerTest extends TestCase
 		$this->assertTrue(
 			$property->getValue($container)['container'] instanceof FactoryBuilder
 		);
+	}
+
+	public function test_register_single_instance()
+	{
+		$container = new Container;
+		$container->register(new SampleProvider);
+
+		$this->assertTrue(
+			$container->has('Sample')
+		);
+	}
+
+	public function test_register_string_reference()
+	{
+		$container = new Container;
+		$container->register(SampleProvider::class);
+
+		$this->assertTrue(
+			$container->has('Sample')
+		);
+	}
+
+	public function test_register_array()
+	{
+		$container = new Container;
+		$container->register([
+			SampleProvider::class
+		]);
+
+		$this->assertTrue(
+			$container->has('Sample')
+		);
+	}
+
+	public function test_register_invalid_provider()
+	{
+		$container = new Container;
+
+		$this->expectException(ContainerException::class);
+		$container->register(new \stdClass);
 	}
 }
