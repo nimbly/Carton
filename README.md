@@ -40,7 +40,7 @@ Of course, you don't need to assign objects - it can be anyhing you like.
 $container->set('timezone', 'UTC');
 ```
 
-### Retriving a value
+### Retrieving a value
 
 Grab a value from the container by its key.
 
@@ -64,9 +64,9 @@ if( $container->has(SomeClass::class) ){
 
 ### Singleton builder
 
-The singleton builder will ensure only one single instance is ever returned.
+The singleton builder will ensure only a single instance is ever returned when it is retrieved from the container.
 
-It also has the added benefit over the ```set``` method of lazily instantiating the class. I.e. it will only be created when it is actually needed.
+It also has the added benefit over the ```set``` method by lazily instantiating the class. I.e. it will only be created when it is actually needed.
 
 ```php
 $container->singleton(
@@ -81,7 +81,7 @@ $container->singleton(
 
 ### Factory builder
 
-The factory builder will create new instances each time it is called.
+The factory builder will create new instances each time it is retrieved from the container.
 
 ```php
 $container->factory(
