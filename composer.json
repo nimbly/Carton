@@ -28,6 +28,5 @@
         "psr-4": {
             "Carton\\Tests\\": "tests/"
         }
-    },
-    "version": "0.2"
+    }
 }
