@@ -3,15 +3,24 @@
 namespace Carton;
 
 use Psr\Container\ContainerInterface;
+use ReflectionClass;
+use ReflectionParameter;
 
 class Container implements ContainerInterface
 {
 	/**
 	 * The container singleton instance.
 	 *
-	 * @var Container
+	 * @var Container|null
 	 */
 	protected static $instance;
+
+	/**
+	 * Additional containers.
+	 *
+	 * @var array<ContainerInterface>
+	 */
+	protected $containers = [];
 
 	/**
 	 * Container items.
@@ -35,11 +44,35 @@ class Container implements ContainerInterface
 	}
 
 	/**
+	 * Add a container.
+	 *
+	 * @param ContainerInterface $container
+	 * @return void
+	 */
+	public function addContainer(ContainerInterface $container): void
+	{
+		$this->containers[] = $container;
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function has($id)
 	{
-		return \array_key_exists($id, $this->items);
+		// Try the root container first.
+		if( \array_key_exists($id, $this->items) ){
+			return true;
+		}
+
+		// Loop through additional containers.
+		/** @var ContainerInterface $container */
+		foreach( $this->containers as $container ){
+			if( $container->has($id) ){
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -47,11 +80,19 @@ class Container implements ContainerInterface
 	 */
 	public function get($id)
 	{
-		if( $this->has($id) === false ){
-			throw new NotFoundException("Container item \"{$id}\" not found.");
+		// Try the root container first.
+		if( \array_key_exists($id, $this->items) ){
+			return $this->items[$id]->build($this);
 		}
 
-		return $this->items[$id]->build($this);
+		/** @var ContainerInterface $container */
+		foreach( $this->containers as $container ){
+			if( $container->has($id) ){
+				return $container->get($id);
+			}
+		}
+
+		throw new NotFoundException("Container item \"{$id}\" not found.");
 	}
 
 	/**
@@ -123,5 +164,113 @@ class Container implements ContainerInterface
 
 			$serviceProviderClass->register($this);
 		}
+	}
+
+	/**
+	 * Make an instance of the given class.
+	 *
+	 * @param string $class
+	 * @param array<string, mixed> $parameters
+	 * @return object
+	 */
+	public function make(string $class, array $parameters = []): object
+	{
+		// Do some reflection to determine constructor parameters
+		/** @psalm-suppress ArgumentTypeCoercion */
+		$reflectionClass = new ReflectionClass($class);
+
+		$constructor = $reflectionClass->getConstructor();
+
+		if( empty($constructor) ){
+			/** @psalm-suppress InvalidStringClass */
+			return new $class;
+		}
+
+		$args = $this->resolveParameters(
+			$constructor->getParameters(),
+			$parameters
+		);
+
+		/** @psalm-suppress InvalidStringClass */
+		return new $class(...$args);
+	}
+
+	/**
+	 * Call a method on a class.
+	 *
+	 * @param string|object $class
+	 * @param string $method
+	 * @param array<string, mixed> $parameters
+	 * @return mixed
+	 */
+	public function call($class, string $method, array $parameters = [])
+	{
+		/** @psalm-suppress ArgumentTypeCoercion */
+		$reflectionClass = new ReflectionClass($class);
+		$reflectionMethod = $reflectionClass->getMethod($method);
+
+		$args = $this->resolveParameters(
+			$reflectionMethod->getParameters(),
+			$parameters
+		);
+
+		if( !\is_object($class) ){
+			$class = $this->make($class);
+		}
+
+		return \call_user_func_array(
+			[$class, $method],
+			$args
+		);
+	}
+
+	/**
+	 * Resolve parameters.
+	 *
+	 * @param array<ReflectionParameter> $reflectionParameters
+	 * @param array<string, mixed> $parameters
+	 * @return array
+	 */
+	protected function resolveParameters(array $reflectionParameters, array $parameters = []): array
+	{
+		return \array_reduce($reflectionParameters, function(array $args, ReflectionParameter $reflectionParameter) use ($parameters): array {
+
+			// Is this a user supplied argument?
+			if( \array_key_exists($reflectionParameter->getName(), $parameters) ){
+				$args[] = $parameters[$reflectionParameter->getName()];
+			}
+
+			// Parameter type
+			/** @psalm-suppress PossiblyNullReference */
+			elseif( $reflectionParameter->hasType() &&
+					$reflectionParameter->getType()->isBuiltin() === false ){
+
+				// Check container
+				if( $this->has((string) $reflectionParameter->getType()) ){
+					$args[] = $this->get((string) $reflectionParameter->getType());
+				}
+
+				// Try to make it
+				else {
+					$args[] = $this->make((string) $reflectionParameter->getType());
+				}
+			}
+
+			// Is there a default value provided? Use that.
+			elseif( $reflectionParameter->isDefaultValueAvailable() ){
+				$args[] = $reflectionParameter->getDefaultValue();
+			}
+
+			// Is this option nullable?
+			elseif( $reflectionParameter->isOptional() ){
+				$args[] = null;
+			}
+			else {
+				throw new ContainerException("Cannot resolve parameter {$reflectionParameter->getName()}.");
+			}
+
+			return $args;
+
+		}, []);
 	}
 }

@@ -93,9 +93,80 @@ $container->factory(
 	}
 );
 ```
+
+### Auto wired instances
+
+You can have instances created for you automatically using the ```make``` method - which will attempt to pull dependencies in from the container itself or recursively ```make``` them if not found.
+
+```php
+
+class Foo
+{
+	protected $date;
+
+	public function __construct(DateTime $date)
+	{
+		$this->date = $date;
+	}
+}
+
+class Bar
+{
+	protected $foo;
+
+	public function __construct(Foo $foo)
+	{
+		$this->foo = $foo;
+	}
+}
+
+$bar = $container->make(Bar::class);
+
+```
+
+### Calling an instance method
+
+Calling an instance method couldn't be easier - Carton will attempt to auto resolve dependencies for you when making a call to
+
+```php
+
+class BooksController
+{
+	public function get(ServerRequestInterface $request, string $isbn): Response
+	{
+		return new Response(
+			Books::find($isbn)
+		);
+	}
+}
+
+$container->set(ServerRequestInterface::class, $serverRequest);
+$response = $container->call('BooksController', 'get', ['isbn' => '123123']);
+
+```
+
+### Adding additional containers
+
+You can extend Carton with additional container instances by calling the ```addContainer``` method. When Carton attempts to resolve an item, it will
+always resolve locally first, and if not found, will loop through any additional containers you have provided.
+
+For example, if you had a configuration manager that implemented ```ContainerInterface``` (PSR-11 compliant),
+you could add it to Carton.
+
+```php
+$container->addContainer(
+	new Config([
+		new FileLoader(__DIR__ . "/config")
+	])
+);
+
+$container->get('database.connections');
+```
+Now you can retrieve your configuration data through the container instance.
+
 ### Registering services
 
-Service providers allow you to organize your application dependecies in an OOO fashion.
+Service providers allow you to organize your application dependencies in a set of classes.
 
 Create service classes that implement ```ServiceProviderInterface```.
 
@@ -121,7 +192,7 @@ class MyServiceProvider implements ServiceProviderInterface
 
 ```
 
-Then register your services providers with the container.
+Then register your service providers with the container.
 
 ```php
 $container->register(new MyServiceProvider);
