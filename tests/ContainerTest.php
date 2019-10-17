@@ -5,10 +5,17 @@ namespace Carton\Tests;
 use Carton\ConcreteBuilder;
 use Carton\Container;
 use Carton\ContainerException;
-use Carton\NotFoundException;
 use Carton\FactoryBuilder;
+use Carton\NotFoundException;
 use Carton\SingletonBuilder;
+use Carton\Tests\Mock\BarClass;
+use Carton\Tests\Mock\FooClass;
 use Carton\Tests\Providers\SampleProvider;
+use DateInterval;
+use DatePeriod;
+use DateTime;
+use DateTimeImmutable;
+use DateTimeZone;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -169,5 +176,73 @@ class ContainerTest extends TestCase
 
 		$this->expectException(ContainerException::class);
 		$container->register(new \stdClass);
+	}
+
+	public function test_make_class_with_empty_constructor()
+	{
+		$container = new Container;
+
+		$this->assertInstanceOf(
+			\stdClass::class,
+			$container->make(\stdClass::class)
+		);
+	}
+
+	public function test_make_with_constructor_parameters()
+	{
+		$container = new Container;
+
+		$this->assertInstanceOf(
+			DateTime::class,
+			$container->make(DateTime::class)
+		);
+	}
+
+	public function test_make_with_retrieving_dependencies_from_container()
+	{
+		$container = new Container;
+
+		$fooClass = new FooClass(
+			new DateTime
+		);
+
+		$container->set(
+			FooClass::class,
+			$fooClass
+		);
+
+		$this->assertSame(
+			$fooClass,
+			$container->make(BarClass::class)->getFoo()
+		);
+	}
+
+	public function test_make_with_user_parameters()
+	{
+		$container = new Container;
+
+		/** @var DateTime $dateTime */
+		$dateTime = $container->make(DateTime::class, [
+			'time' => '2019-01-01 12:00:00',
+			'timezone' => new DateTimeZone('America/Los_Angeles')
+		]);
+
+		$this->assertEquals(
+			'2019-01-01 12:00:00',
+			$dateTime->format('Y-m-d H:i:s')
+		);
+
+		$this->assertEquals(
+			'America/Los_Angeles',
+			$dateTime->getTimezone()->getName()
+		);
+	}
+
+	public function test_make_cannot_resolve_parameter_throws()
+	{
+		$container = new Container;
+
+		$this->expectException(ContainerException::class);
+		$container->make(DateInterval::class);
 	}
 }
