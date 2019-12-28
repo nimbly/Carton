@@ -142,48 +142,26 @@ class Container implements ContainerInterface
 	}
 
 	/**
-	 * Register a set of service providers.
-	 *
-	 * @param ServiceProviderInterface|array<ServiceProviderInterface|string> $serviceProvider
-	 * @return void
-	 */
-	public function register($serviceProvider): void
-	{
-		if( !\is_array($serviceProvider) ){
-			$serviceProvider = [$serviceProvider];
-		}
-
-		foreach( $serviceProvider as $serviceProviderClass ){
-			if( \is_string($serviceProviderClass) && \class_exists($serviceProviderClass) ){
-				$serviceProviderClass = new $serviceProviderClass;
-			}
-
-			if( $serviceProviderClass instanceof ServiceProviderInterface === false ){
-				throw new ContainerException("Service provider not instance of ServiceProviderInterface");
-			}
-
-			$serviceProviderClass->register($this);
-		}
-	}
-
-	/**
 	 * Make an instance of the given class.
 	 *
-	 * @param string $class
+	 * Parameters is a key => value pair of parameters that will be injected into
+	 * the constructor if they cannot be resolved.
+	 *
+	 * @param string $className
 	 * @param array<string, mixed> $parameters
 	 * @return object
 	 */
-	public function make(string $class, array $parameters = []): object
+	public function make(string $className, array $parameters = []): object
 	{
 		// Do some reflection to determine constructor parameters
 		/** @psalm-suppress ArgumentTypeCoercion */
-		$reflectionClass = new ReflectionClass($class);
+		$reflectionClass = new ReflectionClass($className);
 
 		$constructor = $reflectionClass->getConstructor();
 
 		if( empty($constructor) ){
 			/** @psalm-suppress InvalidStringClass */
-			return new $class;
+			return new $className;
 		}
 
 		$args = $this->resolveParameters(
@@ -192,7 +170,7 @@ class Container implements ContainerInterface
 		);
 
 		/** @psalm-suppress InvalidStringClass */
-		return new $class(...$args);
+		return new $className(...$args);
 	}
 
 	/**
@@ -233,11 +211,11 @@ class Container implements ContainerInterface
 	 */
 	protected function resolveParameters(array $reflectionParameters, array $parameters = []): array
 	{
-		return \array_reduce($reflectionParameters, function(array $args, ReflectionParameter $reflectionParameter) use ($parameters): array {
+		return \array_map(function(ReflectionParameter $reflectionParameter) use ($parameters) {
 
 			// Is this a user supplied argument?
 			if( \array_key_exists($reflectionParameter->getName(), $parameters) ){
-				$args[] = $parameters[$reflectionParameter->getName()];
+				return $parameters[$reflectionParameter->getName()];
 			}
 
 			// Parameter type
@@ -247,30 +225,52 @@ class Container implements ContainerInterface
 
 				// Check container
 				if( $this->has((string) $reflectionParameter->getType()) ){
-					$args[] = $this->get((string) $reflectionParameter->getType());
+					return $this->get((string) $reflectionParameter->getType());
 				}
 
 				// Try to make it
 				else {
-					$args[] = $this->make((string) $reflectionParameter->getType());
+					return $this->make((string) $reflectionParameter->getType());
 				}
 			}
 
 			// Is there a default value provided? Use that.
 			elseif( $reflectionParameter->isDefaultValueAvailable() ){
-				$args[] = $reflectionParameter->getDefaultValue();
+				return $reflectionParameter->getDefaultValue();
 			}
 
 			// Is this option nullable?
 			elseif( $reflectionParameter->isOptional() ){
-				$args[] = null;
-			}
-			else {
-				throw new ContainerException("Cannot resolve parameter {$reflectionParameter->getName()}.");
+				return null;
 			}
 
-			return $args;
+			throw new ContainerException("Cannot resolve parameter {$reflectionParameter->getName()}.");
 
-		}, []);
+		}, $reflectionParameters);
+	}
+
+	/**
+	 * Register a set of service providers.
+	 *
+	 * @param ServiceProviderInterface|array<ServiceProviderInterface|string> $serviceProvider
+	 * @return void
+	 */
+	public function register($serviceProvider): void
+	{
+		if( !\is_array($serviceProvider) ){
+			$serviceProvider = [$serviceProvider];
+		}
+
+		foreach( $serviceProvider as $serviceProviderClass ){
+			if( \is_string($serviceProviderClass) && \class_exists($serviceProviderClass) ){
+				$serviceProviderClass = new $serviceProviderClass;
+			}
+
+			if( $serviceProviderClass instanceof ServiceProviderInterface === false ){
+				throw new ContainerException("Service provider not instance of ServiceProviderInterface");
+			}
+
+			$serviceProviderClass->register($this);
+		}
 	}
 }

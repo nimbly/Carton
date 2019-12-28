@@ -94,9 +94,9 @@ $container->factory(
 );
 ```
 
-### Auto wired instances
+### Making instances
 
-You can have instances created for you automatically using the ```make``` method - which will attempt to pull dependencies in from the container itself or recursively ```make``` them if not found.
+You can have instances made for you automatically using the ```make``` method - which will attempt to pull dependencies in from the container itself or recursively ```make``` them if not found.
 
 ```php
 
@@ -124,9 +124,9 @@ $bar = $container->make(Bar::class);
 
 ```
 
-### Calling an instance method
+### Dependecy injection on instance methods
 
-Calling an instance method couldn't be easier - Carton will attempt to auto resolve dependencies for you when making a call to
+Calling an instance method couldn't be easier - Carton will attempt to auto resolve dependencies for you when making a call to an instance method.
 
 ```php
 
