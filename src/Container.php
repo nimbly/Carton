@@ -223,9 +223,11 @@ class Container implements ContainerInterface
 			elseif( $reflectionParameter->hasType() &&
 					$reflectionParameter->getType()->isBuiltin() === false ){
 
+				$reflectionType = $reflectionParameter->getType();
+
 				// Check container
-				if( $this->has((string) $reflectionParameter->getType()) ){
-					return $this->get((string) $reflectionParameter->getType());
+				if( $this->has($reflectionType->getName()) ){
+					return $this->get($reflectionType->getName());
 				}
 
 				// Try to make it
