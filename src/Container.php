@@ -232,7 +232,7 @@ class Container implements ContainerInterface
 
 				// Try to make it
 				else {
-					return $this->make((string) $reflectionParameter->getType());
+					return $this->make($reflectionType->getName());
 				}
 			}
 
