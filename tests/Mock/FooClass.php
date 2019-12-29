@@ -22,4 +22,9 @@ class FooClass
 	{
 		return $this->dateTime;
 	}
+
+	public function echoDateTime(DateTime $dateTime): DateTime
+	{
+		return $dateTime;
+	}
 }

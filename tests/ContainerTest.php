@@ -245,4 +245,79 @@ class ContainerTest extends TestCase
 		$this->expectException(ContainerException::class);
 		$container->make(DateInterval::class);
 	}
+
+	public function test_call_on_instantion()
+	{
+		$fooClass = new FooClass(new \DateTime);
+		$dateTime = new DateTime("2000-01-01");
+
+		$container = new Container;
+		$returnedDateTime = $container->call($fooClass, "echoDateTime", ["dateTime" => $dateTime]);
+
+		$this->assertSame(
+			$dateTime,
+			$returnedDateTime
+		);
+	}
+
+	public function test_call_with_string_reference_to_class()
+	{
+		$dateTime = new DateTime("2000-01-01");
+
+		$container = new Container;
+		$returnedDateTime = $container->call(FooClass::class, "echoDateTime", ["dateTime" => $dateTime]);
+
+		$this->assertSame(
+			$dateTime,
+			$returnedDateTime
+		);
+	}
+
+	public function test_add_container()
+	{
+		$container = new Container;
+
+		$container2 = new Container;
+		$container->addContainer($container2);
+
+		$reflectionClass = new ReflectionClass($container);
+		$reflectionProperty = $reflectionClass->getProperty("containers");
+
+		$reflectionProperty->setAccessible(true);
+		$containers = $reflectionProperty->getValue($container);
+
+		$this->assertContains(
+			$container2,
+			$containers
+		);
+	}
+
+	public function test_has_checks_other_containers()
+	{
+		$container = new Container;
+
+		$container2 = new Container;
+		$container2->set("foo", "bar");
+
+		$container->addContainer($container2);
+
+		$this->assertTrue(
+			$container->has("foo")
+		);
+	}
+
+	public function test_get_from_nested_container()
+	{
+		$container = new Container;
+
+		$container2 = new Container;
+		$container2->set("foo", "bar");
+
+		$container->addContainer($container2);
+
+		$this->assertEquals(
+			"bar",
+			$container->get("foo")
+		);
+	}
 }
