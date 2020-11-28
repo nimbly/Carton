@@ -26,6 +26,9 @@ use ReflectionClass;
  * @covers Carton\ConcreteBuilder
  * @covers Carton\SingletonBuilder
  * @covers Carton\FactoryBuilder
+ * @covers Carton\ParameterResolutionException
+ * @covers Carton\CallableResolutionException
+ * @covers Carton\ContainerException
  */
 class ContainerTest extends TestCase
 {
@@ -249,7 +252,8 @@ class ContainerTest extends TestCase
 
 		/** @var DateTime $dateTime */
 		$dateTime = $container->make(DateTime::class, [
-			'time' => '2019-01-01 12:00:00',
+			'time' => '2019-01-01 12:00:00', // PHP 7.4
+			'datetime' => '2019-01-01 12:00:00', // PHP 8.0
 			'timezone' => new DateTimeZone('America/Los_Angeles')
 		]);
 
@@ -407,9 +411,10 @@ class ContainerTest extends TestCase
 		$container = new Container;
 
 		$arguments = $container->getCallableArguments(
-			"\strtolower",
+			"\\strtolower",
 			[
 				"str" => "CARTON",
+				"string" => "CARTON",
 				"unusedParameter" => "UNUSED"
 			]
 		);
