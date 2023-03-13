@@ -42,4 +42,4 @@ jobs:
       run: make coverage
 
     - name: Upload test coverage report
-      run: coverallsapp/github-action@v1
+      uses: coverallsapp/github-action@v1
