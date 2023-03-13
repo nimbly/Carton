@@ -35,5 +35,11 @@ jobs:
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 
+    - name: Run static analysis
+      run: make analyze
+
     - name: Run test suite
       run: make coverage
+
+    - name: Upload test coverage report
+      run: vendor/bin/php-coveralls --coverage_clover=build/logs/clover.xml
