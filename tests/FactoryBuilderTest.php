@@ -1,14 +1,14 @@
 <?php
 
-namespace Carton\Tests;
+namespace Nimbly\Carton\Tests;
 
-use Carton\FactoryBuilder;
-use Carton\Container;
+use Nimbly\Carton\FactoryBuilder;
+use Nimbly\Carton\Container;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers Carton\FactoryBuilder
- * @covers Carton\Container
+ * @covers Nimbly\Carton\FactoryBuilder
+ * @covers Nimbly\Carton\Container
  */
 class FactoryBuilderTest extends TestCase
 {

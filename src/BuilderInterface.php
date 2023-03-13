@@ -1,9 +1,8 @@
 <?php
 
-namespace Carton;
+namespace Nimbly\Carton;
 
 use Psr\Container\ContainerInterface;
-
 
 interface BuilderInterface
 {
@@ -13,5 +12,5 @@ interface BuilderInterface
 	 * @param ContainerInterface $container
 	 * @return mixed
 	 */
-    public function build(ContainerInterface $container);
+    public function build(ContainerInterface $container): mixed;
 }

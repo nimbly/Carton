@@ -3,8 +3,9 @@
     "description": "A PSR-11 container implementation.",
     "type": "library",
     "require": {
-        "php": "^7.3|^8.0",
-        "psr/container": "^1.0"
+        "php": "^8.0",
+        "psr/container": "^2.0",
+        "nimbly/resolve": "^2.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.0",
@@ -19,14 +20,17 @@
             "email": "brent@brentscheffler.com"
         }
     ],
+	"provide": {
+		"psr/container-implmentation": "^1.0"
+	},
     "autoload": {
         "psr-4": {
-            "Carton\\": "src/"
+            "Nimbly\\Carton\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Carton\\Tests\\": "tests/"
+            "Nimbly\\Carton\\Tests\\": "tests/"
 		}
 	}
 }

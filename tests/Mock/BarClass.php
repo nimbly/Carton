@@ -1,6 +1,6 @@
 <?php
 
-namespace Carton\Tests\Mock;
+namespace Nimbly\Carton\Tests\Mock;
 
 class BarClass
 {

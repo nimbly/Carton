@@ -1,6 +1,6 @@
 <?php
 
-namespace Carton;
+namespace Nimbly\Carton;
 
 use Psr\Container\ContainerInterface;
 
@@ -26,7 +26,7 @@ class FactoryBuilder implements BuilderInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function build(ContainerInterface $container)
+	public function build(ContainerInterface $container): mixed
 	{
 		return \call_user_func($this->builder, $container);
 	}

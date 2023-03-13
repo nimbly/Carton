@@ -1,6 +1,6 @@
 <?php
 
-namespace Carton;
+namespace Nimbly\Carton;
 
 use Exception;
 use Psr\Container\NotFoundExceptionInterface;

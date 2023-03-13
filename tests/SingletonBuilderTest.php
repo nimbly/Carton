@@ -1,14 +1,14 @@
 <?php
 
-namespace Carton\Tests;
+namespace Nimbly\Carton\Tests;
 
-use Carton\SingletonBuilder;
-use Carton\Container;
+use Nimbly\Carton\SingletonBuilder;
+use Nimbly\Carton\Container;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers Carton\SingletonBuilder
- * @covers Carton\Container
+ * @covers Nimbly\Carton\SingletonBuilder
+ * @covers Nimbly\Carton\Container
  */
 class SingletonBuilderTest extends TestCase
 {

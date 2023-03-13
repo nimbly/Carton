@@ -51,7 +51,7 @@ $container->set(SomeInterface::class, new SomeClass);
 Of course, you don't *need* to assign objects - it can be anyhing you like.
 
 ```php
-$container->set('timezone', 'UTC');
+$container->set("timezone", "UTC");
 ```
 
 ### Retrieving a value
@@ -87,7 +87,7 @@ $container->singleton(
 	SomeClass::class,
 	function(Container $container): void {
 		return new SomeClass(
-			$container->get('SomeDependency')
+			$container->get("SomeDependency")
 		);
 	}
 );
@@ -102,7 +102,7 @@ $container->factory(
 	SomeClass::class,
 	function(Container $container): void {
 		return new SomeClass(
-			$container->get('SomeDependency')
+			$container->get("SomeDependency")
 		);
 	}
 );
@@ -116,21 +116,17 @@ You can have instances made for you automatically using the ```make``` method - 
 
 class Foo
 {
-	protected $date;
-
-	public function __construct(DateTime $date)
+	public function __construct(
+        protected DateTime $date)
 	{
-		$this->date = $date;
 	}
 }
 
 class Bar
 {
-	protected $foo;
-
-	public function __construct(Foo $foo)
+	public function __construct(
+        protected Foo $foo)
 	{
-		$this->foo = $foo;
 	}
 }
 
@@ -155,7 +151,7 @@ class BooksController
 }
 
 $container->set(ServerRequestInterface::class, $serverRequest);
-$response = $container->call(BooksController::class, 'get', ['isbn' => '123123']);
+$response = $container->call(BooksController::class, "get", ["isbn" => "123123"]);
 
 ```
 
@@ -174,7 +170,7 @@ $container->addContainer(
 	])
 );
 
-$container->get('database.connections');
+$container->get("database.connections");
 ```
 Now you can retrieve your configuration data through the container instance.
 

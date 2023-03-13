@@ -1,9 +1,9 @@
 <?php
 
-namespace Carton\Tests\Providers;
+namespace Nimbly\Carton\Tests\Mock;
 
-use Carton\Container;
-use Carton\ServiceProviderInterface;
+use Nimbly\Carton\Container;
+use Nimbly\Carton\ServiceProviderInterface;
 
 class SampleProvider implements ServiceProviderInterface
 {

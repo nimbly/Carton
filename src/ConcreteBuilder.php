@@ -1,32 +1,25 @@
 <?php
 
-namespace Carton;
+namespace Nimbly\Carton;
 
 use Psr\Container\ContainerInterface;
 
 class ConcreteBuilder implements BuilderInterface
 {
 	/**
-	 * Concrete instance.
-	 *
-	 * @var mixed
-	 */
-	protected $instance;
-
-	/**
 	 * ConcreteBuilder constructor.
 	 *
 	 * @param mixed $instance
 	 */
-	public function __construct($instance)
+	public function __construct(
+		protected mixed $instance)
 	{
-		$this->instance = $instance;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function build(ContainerInterface $container)
+	public function build(ContainerInterface $container): mixed
 	{
 		return $this->instance;
 	}
