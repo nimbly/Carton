@@ -12,5 +12,5 @@ interface BuilderInterface
 	 * @param ContainerInterface $container
 	 * @return mixed
 	 */
-    public function build(ContainerInterface $container): mixed;
+	public function build(ContainerInterface $container): mixed;
 }

@@ -33,7 +33,7 @@ class Container implements ContainerInterface
 	/**
 	 * Container items.
 	 *
-	 * @var array<string,BuilderInterface>
+	 * @var array<array-key,BuilderInterface>
 	 */
 	protected array $items = [];
 
