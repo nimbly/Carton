@@ -1,6 +1,6 @@
 {
     "name": "nimbly/carton",
-    "description": "A PSR-11 container implementation.",
+    "description": "A simple PSR-11 container implementation offering reflection based autowiring.",
     "type": "library",
     "require": {
         "php": "^8.0",

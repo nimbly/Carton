@@ -1,10 +1,11 @@
+# Carton
+
 [![Latest Stable Version](https://img.shields.io/packagist/v/nimbly/carton.svg?style=flat-square)](https://packagist.org/packages/nimbly/carton)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/nimbly/carton/php.yml?style=flat-square)](https://github.com/nimbly/Carton/actions/workflows/php.yml)
 [![Codecov branch](https://img.shields.io/codecov/c/github/nimbly/carton/master?style=flat-square)](https://app.codecov.io/github/nimbly/Carton)
 [![License](https://img.shields.io/github/license/nimbly/carton.svg?style=flat-square)](https://packagist.org/packages/nimbly/carton)
 
 
-# Carton
 A simple PSR-11 container implementation.
 
 ## Features
@@ -13,7 +14,7 @@ A simple PSR-11 container implementation.
 * Singleton and factory builders
 * Service providers
 * Nested container support
-* Autowiring
+* Reflection based autowiring
 
 ## Install
 ```bash
@@ -32,7 +33,7 @@ $container = new Container;
 
 ### Singleton instance
 
-Or use the container singleton ```getInstance``` method.
+Or use the container singleton `getInstance` method.
 
 ```php
 $container = Container::getInstance();
@@ -48,7 +49,7 @@ The most basic usage is to just assign an instance to the container itself.
 $container->set(SomeInterface::class, new SomeClass);
 ```
 
-Of course, you don't *need* to assign objects - it can be anyhing you like.
+Of course, you don't *need* to assign objects - it can be anything you like.
 
 ```php
 $container->set("timezone", "UTC");
@@ -62,7 +63,7 @@ Grab a value from the container by its key.
 $someClass = $container->get(SomeClass::class);
 ```
 
-NOTE: Retrieving a value that does not exist will throw a ```NotFoundException```.
+NOTE: Retrieving a value that does not exist will throw a `NotFoundException`.
 
 ### Checking for instance
 
@@ -80,7 +81,7 @@ if( $container->has(SomeClass::class) ){
 
 The singleton builder will ensure only a single instance is ever returned when it is retrieved from the container.
 
-It also has the added benefit over the ```set``` method by lazily instantiating the class. I.e. it will only be created when it is actually needed.
+It also has the added benefit over the `set` method by lazily instantiating the class. I.e. it will only be created when it is actually needed.
 
 ```php
 $container->singleton(
@@ -110,10 +111,9 @@ $container->factory(
 
 ### Autowiring
 
-You can have instances made for you automatically using the ```make``` method - which will attempt to pull dependencies in from the container itself or recursively attempt to ```make``` them if not found.
+You can have instances made for you automatically using the `make` method - which will attempt to pull dependencies in from the container itself or recursively attempt to `make` them if not found.
 
 ```php
-
 class Foo
 {
 	public function __construct(
@@ -131,7 +131,6 @@ class Bar
 }
 
 $bar = $container->make(Bar::class);
-
 ```
 
 ### Dependecy injection on instance methods
@@ -139,7 +138,6 @@ $bar = $container->make(Bar::class);
 Calling an instance method couldn't be easier - Carton will attempt to autoresolve dependencies (autowire) for you when making a call to an instance method.
 
 ```php
-
 class BooksController
 {
 	public function get(ServerRequestInterface $request, string $isbn): Response
@@ -151,16 +149,15 @@ class BooksController
 }
 
 $container->set(ServerRequestInterface::class, $serverRequest);
-$response = $container->call(BooksController::class, "get", ["isbn" => "123123"]);
-
+$response = $container->call([BooksController::class, "get"], ["isbn" => "123123"]);
 ```
 
 ### Adding additional containers
 
-You can extend Carton with additional PSR-11 compliant container instances by calling the ```addContainer``` method. When Carton attempts to resolve an item, it will
+You can extend Carton with additional PSR-11 compliant container instances by calling the `addContainer` method. When Carton attempts to resolve an item, it will
 always attempt to resolve locally first, and if not found, will loop through any additional containers you have provided.
 
-For example, if you had a configuration manager that implemented ```ContainerInterface``` (PSR-11),
+For example, if you had a configuration manager that implemented `ContainerInterface` (PSR-11),
 you could add it to Carton.
 
 ```php
@@ -178,28 +175,23 @@ Now you can retrieve your configuration data through the container instance.
 
 Service providers allow you to organize your application dependencies in a set of classes.
 
-Create service classes that implement ```ServiceProviderInterface```.
+Create service classes that implement `ServiceProviderInterface`.
 
 ```php
-
 class MyServiceProvider implements ServiceProviderInterface
 {
 	public function register(Container $container): void
 	{
 		$container->singleton(
 			MyService::class,
-
 			function(Container $container): void {
-
 				return new MyService(
 					$container->get(SomeDependency::class)
 				);
-
 			}
 		);
 	}
 }
-
 ```
 
 Then register your service providers with the container.

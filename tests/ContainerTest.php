@@ -12,6 +12,7 @@ use Nimbly\Carton\Tests\Mock\BarClass;
 use Nimbly\Carton\Tests\Mock\FooClass;
 use Nimbly\Carton\Tests\Mock\SampleProvider;
 use DateTime;
+use Nimbly\Carton\Tests\Mock\InvokableClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -190,6 +191,24 @@ class ContainerTest extends TestCase
 		$container->register([new \stdClass]);
 	}
 
+	public function test_call(): void
+	{
+		$container = new Container;
+		$container->set(
+			FooClass::class,
+			new FooClass(new DateTime)
+		);
+
+		$result = $container->call(
+			function(FooClass $foo, DateTime $date) {
+				return $foo->getDateTime() > $date;
+			},
+			["date" => new DateTime("last week")]
+		);
+
+		$this->assertTrue($result);
+	}
+
 	public function test_add_container(): void
 	{
 		$container = new Container;
@@ -250,5 +269,25 @@ class ContainerTest extends TestCase
 			$instance::class,
 			FooClass::class
 		);
+	}
+
+	public function test_make_callable_with_function(): void
+	{
+		$container = new Container;
+		$callable = $container->makeCallable(
+			"strtolower"
+		);
+
+		$this->assertIsCallable($callable);
+	}
+
+	public function test_make_callable_with_invokable_class(): void
+	{
+		$container = new Container;
+		$invokable = new InvokableClass;
+
+		$callable = $container->makeCallable($invokable);
+
+		$this->assertIsCallable($callable);
 	}
 }
