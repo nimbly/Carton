@@ -1,10 +1,8 @@
-name: Test coverage
+name: Test suite
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  - push
+  - pull_request
 
 permissions:
   contents: read
@@ -26,8 +24,11 @@ jobs:
       with:
         php-version: ${{ matrix.php-version }}
 
-    - name: Validate composer.json and composer.lock
-      run: composer validate --strict
+    - name: Validate dependencies
+      run: composer validate --strict --no-check-lock
+
+    - name: Audit dependencies
+      run: composer audit
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress

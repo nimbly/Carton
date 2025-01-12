@@ -110,6 +110,8 @@ class Container implements ContainerInterface
 	/**
 	 * Sets instance to container.
 	 *
+	 * This will return the *exact* item you provide with each call to the container.
+	 *
 	 * @param string $id The item ID or name. If the ID already exists in the container, it will be overwritten with the new item!
 	 * @param mixed $item The item instance or value. Can be anything you want (string, object, resource, etc.)
 	 * @param string|array<string> $aliases An alias or an array of aliases for this container item.
@@ -186,7 +188,7 @@ class Container implements ContainerInterface
 	/**
 	 * Register a set of service providers.
 	 *
-	 * @param array<ServiceProviderInterface|class-string> $serviceProviders
+	 * @param array<ServiceProviderInterface|class-string> $serviceProviders An array of `ServiceProviderInterface` instances or fully qualified class names that implement `ServiceProviderInterface`.
 	 * @throws ContainerException
 	 * @throws ClassResolutionException
 	 * @throws ParameterResolutionException
@@ -216,7 +218,7 @@ class Container implements ContainerInterface
 	 * Call a callable with values from container and optional parameters.
 	 *
 	 * @param callable $callable The callable to call/invoke.
-	 * @param array<array-key,mixed> $parameters Additional parameters to be used when resolving dependencies.
+	 * @param array<string,mixed> $parameters Additional parameters to be used when resolving dependencies.
 	 * @throws ParameterResolutionException
 	 * @return mixed
 	 */
@@ -233,7 +235,7 @@ class Container implements ContainerInterface
 	 * Make an instance of a class with the given fully qualified class name.
 	 *
 	 * @param string $class_name A fully qualified class name (including name space.)
-	 * @param array<array-key,mixed> $parameters Additional parameters to be used when resolving dependencies.
+	 * @param array<string,mixed> $parameters Additional parameters to be used when resolving dependencies.
 	 * @throws ParameterResolutionException
 	 * @throws ClassResolutionException
 	 * @return object
@@ -250,8 +252,8 @@ class Container implements ContainerInterface
 	/**
 	 * Make something callable.
 	 *
-	 * @param string|callable $callable
-	 * @param array<array-key,mixed> $parameters
+	 * @param string|callable $callable A string in the format `Fully\Qualified\Namespace\Class@methodName` or an actual callable.
+	 * @param array<string,mixed> $parameters  Additional parameters to be used when resolving dependencies.
 	 * @throws ParameterResolutionException
 	 * @throws ClassResolutionException
 	 * @throws CallableResolutionException
