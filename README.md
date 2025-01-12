@@ -79,9 +79,9 @@ if( $container->has(SomeClass::class) ){
 
 ### Singleton builder
 
-The singleton builder will ensure only a single instance is ever returned when it is retrieved from the container.
+The singleton builder will ensure only a single instance is ever returned when it is retrieved from the container. The singleton builder requires a `callable` that will be invoked when it needs to build your dependency and will pass along the `Container` instance as a single parameter.
 
-It also has the added benefit over the `set` method by lazily instantiating the class. I.e. it will only be created when it is actually needed.
+It also has the added benefit over the `set` method by lazily calling your callback. I.e. it will only be created when it is actually needed.
 
 ```php
 $container->singleton(
@@ -96,9 +96,9 @@ $container->singleton(
 
 ### Factory builder
 
-The factory builder will create new instances each time it is retrieved from the container.
+The factory builder will create new instances each time it is retrieved from the container. The factory builder requires a `callable` that will be invoked when it needs to build your dependency and will pass along the `Container` instance as a single parameter.
 
-Just like the singleton builder, it has the added benefit over the set method by lazily instantiating the class. I.e. it will only be created when it is actually needed.
+Just like the singleton builder, it has the added benefit over the set method by lazily calling your callback. I.e. it will only be created when it is actually needed.
 
 ```php
 $container->factory(
@@ -116,27 +116,23 @@ $container->factory(
 You can create aliases of your container items. These aliases simply point to an existing container item and fetch that item for you.
 
 ```php
+$container->set(Bar::class, new Bar);
 $container->alias(Foo:class, Bar::class);
+$instance = $container->get(Foo::class); // Returns Bar::class instance.
 ```
 
 Alternatively, you can provide an alias or an array of aliases when calling `set`, `singleton`, or `factory`.
 
 ```php
 $container->singleton(
-	Foo:class,
-	function(Container $container): Foo {
-		return new Foo(
-			$container->get("SomeOtherDepency"),
-		);
+	Bar:class,
+	function(Container $container): Bar {
+		return new Bar;
 	},
-	[Bar::class, Baz::class]
+	[Foo::class, Baz::class]
 )
-```
 
-In this example, when retrieving `Bar::class` from the container, it will return the `Foo::class` item.
-
-```php
-$foo = $container->get(Bar::class);
+$instance = $container->get(Foo::class); // Returns Bar::class instance.
 ```
 
 ### Autowiring
