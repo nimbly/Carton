@@ -27,11 +27,11 @@ jobs:
     - name: Validate dependencies
       run: composer validate --strict --no-check-lock
 
-    - name: Audit dependencies
-      run: composer audit
-
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
+
+    - name: Audit dependencies
+      run: composer audit
 
     - name: Run static analysis
       run: make analyze
