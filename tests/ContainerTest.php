@@ -104,6 +104,36 @@ class ContainerTest extends TestCase
 		);
 	}
 
+	public function test_set_creates_alias(): void
+	{
+		$container = new Container;
+		$container->set("container", new \stdClass, "alias");
+
+		$this->assertTrue($container->has("alias"));
+		$this->assertInstanceOf(
+			\stdClass::class,
+			$container->get("alias")
+		);
+	}
+
+	public function test_set_creates_array_of_aliases(): void
+	{
+		$container = new Container;
+		$container->set("container", new \stdClass, ["alias", "anotheralias"]);
+
+		$this->assertTrue($container->has("alias"));
+		$this->assertInstanceOf(
+			\stdClass::class,
+			$container->get("alias")
+		);
+
+		$this->assertTrue($container->has("anotheralias"));
+		$this->assertInstanceOf(
+			\stdClass::class,
+			$container->get("anotheralias")
+		);
+	}
+
 	public function test_singleton_creates_and_sets_singleton_builder(): void
 	{
 		$container = new Container;

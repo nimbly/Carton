@@ -53,7 +53,7 @@ class Container implements ContainerInterface
 	}
 
 	/**
-	 * Add a container.
+	 * Add a PSR-11 container to the pool.
 	 *
 	 * @param ContainerInterface $container
 	 * @return void
@@ -99,7 +99,12 @@ class Container implements ContainerInterface
 			}
 		}
 
-		throw new NotFoundException("Container item \"{$id}\" not found.");
+		throw new NotFoundException(
+			\sprintf(
+				"Container item %s not found.",
+				$id
+			)
+		);
 	}
 
 	/**
@@ -107,15 +112,18 @@ class Container implements ContainerInterface
 	 *
 	 * @param string $id
 	 * @param mixed $item
+	 * @param string|array<string> $aliases
 	 * @return void
 	 */
-	public function set(string $id, mixed $item): void
+	public function set(string $id, mixed $item, string|array $aliases = []): void
 	{
 		if( $item instanceof BuilderInterface === false ){
 			$item = new ConcreteBuilder($item);
 		}
 
 		$this->items[$id] = $item;
+
+		$this->alias($aliases, $id);
 	}
 
 	/**
@@ -123,14 +131,12 @@ class Container implements ContainerInterface
 	 *
 	 * @param string $id
 	 * @param callable $builder
+	 * @param string|array<string> $aliases
 	 * @return void
 	 */
-	public function singleton(string $id, callable $builder): void
+	public function singleton(string $id, callable $builder, string|array $aliases = []): void
 	{
-		$this->set(
-			$id,
-			new SingletonBuilder($builder)
-		);
+		$this->set($id, new SingletonBuilder($builder), $aliases);
 	}
 
 	/**
@@ -138,39 +144,48 @@ class Container implements ContainerInterface
 	 *
 	 * @param string $id
 	 * @param callable $builder
+	 * @param string|array<string> $aliases
 	 * @return void
 	 */
-	public function factory(string $id, callable $builder): void
+	public function factory(string $id, callable $builder, string|array $aliases = []): void
 	{
-		$this->set(
-			$id,
-			new FactoryBuilder($builder)
-		);
+		$this->set($id, new FactoryBuilder($builder), $aliases);
 	}
 
 	/**
-	 * Alias an item to another item.
+	 * Alias a key (or an array of keys) to another item.
 	 *
-	 * @param string $alias
-	 * @param string $id
+	 * @param string|array<string> $alias A key or an array of keys to use as aliases.
+	 * @param string $id An existing container instance you would like to the alias to point to.
 	 * @return void
 	 */
-	public function alias(string $alias, string $id): void
+	public function alias(string|array $alias, string $id): void
 	{
-		if( !\array_key_exists($id, $this->items) ){
-			throw new NotFoundException("Container item {$id} not found.");
+		if( $this->has($id) === false ){
+			throw new NotFoundException(
+				\sprintf(
+					"Container item %s not found.",
+					$id
+				)
+			);
 		}
 
-		$this->set(
-			$alias,
-			$this->items[$id]
-		);
+		if( \is_string($alias) ){
+			$alias = [$alias];
+		}
+
+		foreach( $alias as $a ){
+			$this->items[$a] = $this->items[$id];
+		}
 	}
 
 	/**
 	 * Register a set of service providers.
 	 *
 	 * @param array<ServiceProviderInterface|class-string> $serviceProviders
+	 * @throws ContainerException
+	 * @throws ClassResolutionException
+	 * @throws ParameterResolutionException
 	 * @return void
 	 */
 	public function register(array $serviceProviders): void
@@ -181,7 +196,12 @@ class Container implements ContainerInterface
 			}
 
 			if( $serviceProviderClass instanceof ServiceProviderInterface === false ){
-				throw new ContainerException("Service provider not instance of ServiceProviderInterface");
+				throw new ContainerException(
+					\sprintf(
+						"Service provider %s not instance of ServiceProviderInterface.",
+						$serviceProviderClass::class
+					)
+				);
 			}
 
 			$serviceProviderClass->register($this);

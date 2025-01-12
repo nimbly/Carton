@@ -98,15 +98,45 @@ $container->singleton(
 
 The factory builder will create new instances each time it is retrieved from the container.
 
+Just like the singleton builder, it has the added benefit over the set method by lazily instantiating the class. I.e. it will only be created when it is actually needed.
+
 ```php
 $container->factory(
 	SomeClass::class,
-	function(Container $container): void {
+	function(Container $container): SomeClass {
 		return new SomeClass(
 			$container->get("SomeDependency")
 		);
 	}
 );
+```
+
+### Aliases
+
+You can create aliases of your container items. These aliases simply point to an existing container item and fetch that item for you.
+
+```php
+$container->alias(Foo:class, Bar::class);
+```
+
+Alternatively, you can provide an alias or an array of aliases when calling `set`, `singleton`, or `factory`.
+
+```php
+$container->singleton(
+	Foo:class,
+	function(Container $container): Foo {
+		return new Foo(
+			$container->get("SomeOtherDepency"),
+		);
+	},
+	[Bar::class, Baz::class]
+)
+```
+
+In this example, when retrieving `Bar::class` from the container, it will return the `Foo::class` item.
+
+```php
+$foo = $container->get(Bar::class);
 ```
 
 ### Autowiring
@@ -154,8 +184,7 @@ $response = $container->call([BooksController::class, "get"], ["isbn" => "123123
 
 ### Adding additional containers
 
-You can extend Carton with additional PSR-11 compliant container instances by calling the `addContainer` method. When Carton attempts to resolve an item, it will
-always attempt to resolve locally first, and if not found, will loop through any additional containers you have provided.
+You can extend Carton with additional PSR-11 compliant container instances by calling the `addContainer` method. When Carton attempts to resolve an item, it will always attempt to resolve locally first, and if not found, will loop through any additional containers you have provided.
 
 For example, if you had a configuration manager that implemented `ContainerInterface` (PSR-11),
 you could add it to Carton.
