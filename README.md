@@ -15,6 +15,7 @@ A simple PSR-11 container implementation.
 * Service providers
 * Nested container support
 * Reflection based autowiring
+* Aliasing
 
 ## Install
 ```bash
@@ -53,6 +54,7 @@ Of course, you don't *need* to assign objects - it can be anything you like.
 
 ```php
 $container->set("timezone", "UTC");
+$container->set("foo_fh", \fopen("/tmp/foo", "r"));
 ```
 
 ### Retrieving a value
@@ -63,7 +65,7 @@ Grab a value from the container by its key.
 $someClass = $container->get(SomeClass::class);
 ```
 
-NOTE: Retrieving a value that does not exist will throw a `NotFoundException`.
+NOTE: Retrieving a value that does not exist will throw a `Nimbly\Carton\NotFoundException`.
 
 ### Checking for instance
 
@@ -132,7 +134,9 @@ $container->singleton(
 	[Foo::class, Baz::class]
 )
 
+$instance = $container->get(Bar::class); // Returns Bar::class instance.
 $instance = $container->get(Foo::class); // Returns Bar::class instance.
+$instance = $container->get(Baz::class); // Returns Bar::class instance.
 ```
 
 ### Autowiring
