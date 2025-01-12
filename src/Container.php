@@ -110,9 +110,9 @@ class Container implements ContainerInterface
 	/**
 	 * Sets instance to container.
 	 *
-	 * @param string $id
-	 * @param mixed $item
-	 * @param string|array<string> $aliases
+	 * @param string $id The item ID or name. If the ID already exists in the container, it will be overwritten with the new item!
+	 * @param mixed $item The item instance or value. Can be anything you want (string, object, resource, etc.)
+	 * @param string|array<string> $aliases An alias or an array of aliases for this container item.
 	 * @return void
 	 */
 	public function set(string $id, mixed $item, string|array $aliases = []): void
@@ -123,15 +123,19 @@ class Container implements ContainerInterface
 
 		$this->items[$id] = $item;
 
-		$this->alias($aliases, $id);
+		if( $aliases ){
+			$this->alias($aliases, $id);
+		}
 	}
 
 	/**
 	 * Set a singleton builder.
 	 *
-	 * @param string $id
-	 * @param callable $builder
-	 * @param string|array<string> $aliases
+	 * A singleton builder will return the same instance with each call to the container.
+	 *
+	 * @param string $id The item ID or name. If the ID already exists in the container, it will be overwritten with the new item!
+	 * @param callable $builder A callable that will build the item. This callable will only be executed when the item is retrieved from the container.
+	 * @param string|array<string> $aliases An alias or an array of aliases for this container item.
 	 * @return void
 	 */
 	public function singleton(string $id, callable $builder, string|array $aliases = []): void
@@ -142,9 +146,11 @@ class Container implements ContainerInterface
 	/**
 	 * Set a factory builder.
 	 *
-	 * @param string $id
-	 * @param callable $builder
-	 * @param string|array<string> $aliases
+	 * A factory builder will return a new instance with each call to the container.
+	 *
+	 * @param string $id The item ID or name. If the ID already exists in the container, it will be overwritten with the new item!
+	 * @param callable $builder A callable that will build the item. This callable will only be executed when the item is retrieved from the container.
+	 * @param string|array<string> $aliases An alias or an array of aliases for this container item.
 	 * @return void
 	 */
 	public function factory(string $id, callable $builder, string|array $aliases = []): void
@@ -153,20 +159,18 @@ class Container implements ContainerInterface
 	}
 
 	/**
-	 * Alias a key (or an array of keys) to another item.
+	 * Alias a key (or an array of keys) to another container item.
 	 *
-	 * @param string|array<string> $alias A key or an array of keys to use as aliases.
-	 * @param string $id An existing container instance you would like to the alias to point to.
+	 * @param string|array<string> $alias A name or an array of names to use as aliases.
+	 * @param string $id An existing container item you would like the alias(es) to point to.
+	 * @throws NotFoundException
 	 * @return void
 	 */
 	public function alias(string|array $alias, string $id): void
 	{
 		if( $this->has($id) === false ){
 			throw new NotFoundException(
-				\sprintf(
-					"Container item %s not found.",
-					$id
-				)
+				\sprintf("Cannot alias %s: container item not found.", $id)
 			);
 		}
 
@@ -175,7 +179,7 @@ class Container implements ContainerInterface
 		}
 
 		foreach( $alias as $a ){
-			$this->items[$a] = $this->items[$id];
+			$this->set($a, $this->items[$id]);
 		}
 	}
 
@@ -211,8 +215,8 @@ class Container implements ContainerInterface
 	/**
 	 * Call a callable with values from container and optional parameters.
 	 *
-	 * @param callable $callable
-	 * @param array<array-key,mixed> $parameters
+	 * @param callable $callable The callable to call/invoke.
+	 * @param array<array-key,mixed> $parameters Additional parameters to be used when resolving dependencies.
 	 * @throws ParameterResolutionException
 	 * @return mixed
 	 */
@@ -228,8 +232,8 @@ class Container implements ContainerInterface
 	/**
 	 * Make an instance of a class with the given fully qualified class name.
 	 *
-	 * @param string $class_name
-	 * @param array<array-key,mixed> $parameters
+	 * @param string $class_name A fully qualified class name (including name space.)
+	 * @param array<array-key,mixed> $parameters Additional parameters to be used when resolving dependencies.
 	 * @throws ParameterResolutionException
 	 * @throws ClassResolutionException
 	 * @return object
