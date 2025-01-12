@@ -1,7 +1,7 @@
 # Carton
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/nimbly/carton.svg?style=flat-square)](https://packagist.org/packages/nimbly/carton)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/nimbly/carton/php.yml?style=flat-square)](https://github.com/nimbly/Carton/actions/workflows/php.yml)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/nimbly/carton/test.yml?style=flat-square)](https://github.com/nimbly/Carton/actions/workflows/test.yml)
 [![Codecov branch](https://img.shields.io/codecov/c/github/nimbly/carton/master?style=flat-square)](https://app.codecov.io/github/nimbly/Carton)
 [![License](https://img.shields.io/github/license/nimbly/carton.svg?style=flat-square)](https://packagist.org/packages/nimbly/carton)
 
