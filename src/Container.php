@@ -24,18 +24,14 @@ class Container implements ContainerInterface
 	protected static ?Container $instance;
 
 	/**
-	 * Additional containers.
-	 *
-	 * @var array<ContainerInterface>
+	 * @param array<string,BuilderInterface> $items
+	 * @param array<ContainerInterface> $containers
 	 */
-	protected array $containers = [];
-
-	/**
-	 * Container items.
-	 *
-	 * @var array<array-key,BuilderInterface>
-	 */
-	protected array $items = [];
+	public function __construct(
+		protected array $items = [],
+		protected array $containers = [])
+	{
+	}
 
 
 	/**

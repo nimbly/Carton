@@ -1,12 +1,16 @@
 # Carton
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/nimbly/carton.svg?style=flat-square)](https://packagist.org/packages/nimbly/carton)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/nimbly/carton/test.yml?style=flat-square)](https://github.com/nimbly/Carton/actions/workflows/test.yml)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/nimbly/carton/coverage.yml?style=flat-square)](https://github.com/nimbly/Carton/actions/workflows/coverage.yml)
 [![Codecov branch](https://img.shields.io/codecov/c/github/nimbly/carton/master?style=flat-square)](https://app.codecov.io/github/nimbly/Carton)
 [![License](https://img.shields.io/github/license/nimbly/carton.svg?style=flat-square)](https://packagist.org/packages/nimbly/carton)
 
 
 A simple PSR-11 container implementation.
+
+## Requirements
+
+* PHP 8.2+
 
 ## Features
 
@@ -18,6 +22,7 @@ A simple PSR-11 container implementation.
 * Aliasing
 
 ## Install
+
 ```bash
 composer require nimbly/carton
 ```
